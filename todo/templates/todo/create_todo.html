@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<h2>Write down what you need to do</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="todo_note" rows="6" cols="40"></textarea>
+    <p><input type="submit" value="Create">
+</form>

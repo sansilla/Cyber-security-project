@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<h1>Log in</h1>
+
+<form method="POST">
+    {% csrf_token %} User: <br><input type="text" name="username">
+    <p>
+        Password: <br><input type="password" name="password">
+        <p>
+            <input type="submit" value="Log in">
+        </p>
+    </p>
+</form>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}

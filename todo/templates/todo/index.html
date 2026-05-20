@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<h1>What TODO?</h1>
+
+{% if user.is_authenticated %}
+<p>Showing {{ user.username }} TODOs:</p>
+
+{% for todo in todos %}
+<p>
+    <form method="post" action="{% url 'delete_todo' %}">
+        {% csrf_token %}
+        {{ todo.todo_note }}
+        <input type="hidden" name="todo_id" value="{{ todo.id }}">
+        <button type="submit">Done</button>
+    </form>
+    Added: {{ todo.pub_date }}
+</p>
+
+{% empty %}
+    <p>Nothing to do yet</p>
+{% endfor %}
+
+<a href="/create_todo">Create new TODO</a><br />
+
+<a href="/logout">Log out</a>
+
+{% else %}
+<p>Not logged in</p>
+
+<a href="/login">Login</a><br />
+<a href="/register">Register</a>
+
+{% endif %}
