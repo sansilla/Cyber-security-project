@@ -44,30 +44,37 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        if username and password:
+        # A02, A03 & A07, shared fix below
+        cursor = connection.cursor()
+        query = f"SELECT * FROM auth_user WHERE username = '{username}'"
+        cursor.execute(query)
+        user = cursor.fetchone()
 
-        # A02 Cryptographic Failures - Secure authentication isn't used
-        # fix: check if user exists and autenticate if exists
-
-        # user_exists = User.objects.filter(username=username).exists()
-        # if user_exists:
-            # user = authenticate(request, username=username, password=password)
+        if user is None:
+            return render(request, "todo/login.html", {"error": "User doesn't exist"})
         
-            try:
-                user = User.objects.get(username=username)
-                if user.password != password:
-                    return render(request, "todo/login.html", {"error": "Wrong password"})
-    
-            except User.DoesNotExist:
-                return render(request, "todo/login.html", {"error": "User doesn't exist"})
+        password_sql = user[1]
 
-            else:
-                login(request, user)
-                return redirect("index")
+        if password_sql != password:
+            return render(request, "todo/login.html", {"error": "Wrong password"})
+
+        else:            
+            user_for_login = User.objects.get(id=user[0])
+            login(request, user_for_login)
+            return redirect("index")
+        
+        # A03 Injection - Attacker can manipulate SQL queries
+        # fix: instead of constructing SQL query directly from user input,
+        # use Django ORM in the background when authenticating user and therefore
+        # SQL queries can be ditched
 
         # A07 Identification and Authentication Failures - Error leaks sensitivce information
         # and enables user enumeration attack
         # fix: use the same message for all outcomes
+
+        # A02 Cryptographic Failures - same as in register: since password
+        # isn't hashed, login compares password to plain text in database
+        # fix: use authenticate method to compare passwords (hashed in the fixed registering)
 
         # user = authenticate(request, username=username, password=password)
 
